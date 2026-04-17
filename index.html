@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Google Review QR Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --primary: #1A73E8; --primary-dark: #1557B0; --accent: #EA4335;
+    --green: #34A853; --bg: #F8F9FA; --card: #FFFFFF;
+    --text: #202124; --muted: #5F6368; --border: #DADCE0;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08); --radius: 16px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  #page-generator { display: flex; flex-direction: column; align-items: center; padding: 2rem 1rem; }
+  .hero-header { text-align: center; margin-bottom: 2.5rem; }
+  h1 { font-size: clamp(1.8rem, 5vw, 2.8rem); font-weight: 700; margin-bottom: 0.75rem; }
+  h1 em { font-style: normal; color: var(--primary); }
+  .generator-card { background: var(--card); border-radius: var(--radius); padding: 2rem; width: 100%; max-width: 520px; box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .input-group { margin-bottom: 1.25rem; }
+  label { display: block; font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; }
+  input { width: 100%; padding: 14px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-size: 15px; outline: none; background: #FAFAFA; }
+  input:focus { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(26,115,232,0.12); }
+  .generate-btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; transition: 0.2s; margin-top: 1rem; }
+  .qr-result { display: none; margin-top: 2rem; text-align: center; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .qr-result.show { display: block; }
+  .qr-wrapper { display: inline-block; background: white; border: 2px solid var(--border); border-radius: 16px; padding: 20px; position: relative; }
+  .qr-logo-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 45px; height: 45px; background: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.15); font-size: 24px; }
+  .btn-outline { padding: 10px 20px; border: 1.5px solid var(--border); border-radius: 10px; background: white; font-weight: 600; cursor: pointer; margin-top: 15px; }
+</style>
+</head>
+<body>
+<div id="page-generator">
+  <div class="hero-header">
+    <h1>Apni business ka <em>QR Code</em> banayein</h1>
+    <p style="color:var(--muted)">GitHub Pages link yahan dalein aur QR generate karein</p>
+  </div>
+  <div class="generator-card">
+    <div class="input-group">
+      <label>GitHub Pages URL</label>
+      <input type="url" id="host-url" placeholder="https://username.github.io/repo-name" />
+    </div>
+    <div class="input-group">
+      <label>Business Ka Naam</label>
+      <input type="text" id="biz-name" placeholder="Jaise: Shapemeup Fitness" />
+    </div>
+    <div class="input-group">
+      <label>Google Business Review Link</label>
+      <input type="url" id="biz-url" placeholder="https://g.page/r/..." />
+    </div>
+    <button class="generate-btn" onclick="generateQR()">QR Code Generate Karein</button>
+    <div class="qr-result" id="qr-result">
+      <div class="qr-wrapper">
+        <div id="qrcode"></div>
+        <div class="qr-logo-overlay">⭐</div>
+      </div>
+      <p style="margin-top:10px; font-weight:600;" id="qr-biz-name"></p>
+      <button class="btn-outline" onclick="downloadQR()">⬇️ Download QR Image</button>
+    </div>
+  </div>
+</div>
+<script>
+function generateQR() {
+  let hostUrl = document.getElementById('host-url').value.trim().replace(/\/$/, '');
+  const name = document.getElementById('biz-name').value.trim();
+  const googleUrl = document.getElementById('biz-url').value.trim();
+  if (!hostUrl || !name || !googleUrl) { alert('Sari details bhariye!'); return; }
+  if (!hostUrl.startsWith('http')) hostUrl = 'https://' + hostUrl;
+  
+  const finalLink = hostUrl + '/review.html?biz=' + encodeURIComponent(name) + '&url=' + encodeURIComponent(googleUrl);
+  document.getElementById('qrcode').innerHTML = '';
+  new QRCode(document.getElementById('qrcode'), {
+    text: finalLink,
+    width: 256, height: 256,
+    colorDark: "#000000", colorLight: "#ffffff",
+    correctLevel: QRCode.CorrectLevel.H
+  });
+  document.getElementById('qr-biz-name').textContent = name;
+  document.getElementById('qr-result').classList.add('show');
+}
+function downloadQR() {
+  const canvas = document.querySelector('#qrcode canvas');
+  const link = document.createElement('a');
+  link.download = 'Review_QR.png';
+  link.href = canvas.toDataURL();
+  link.click();
+}
+</script>
+</body>
+</html>
