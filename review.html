@@ -3,120 +3,129 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Review Karein</title>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Review Helper</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --primary: #1A73E8; --bg: #F0F2F5; --card: #FFFFFF;
-    --text: #202124; --muted: #5F6368; --border: #DADCE0;
-    --radius: 16px;
-  }
-  body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
-  .header { background: white; padding: 15px; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; align-items: center; }
+  :root { --primary: #1A73E8; --bg: #F0F2F5; --text: #202124; --border: #DADCE0; }
+  body { font-family: 'Sora', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 20px; }
+  .header { background: white; padding: 20px; border-bottom: 1px solid var(--border); text-align: center; }
   .container { padding: 16px; max-width: 500px; margin: 0 auto; }
-  .card { background: white; border-radius: var(--radius); padding: 20px; margin-bottom: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid var(--border); }
-  .star-row { display: flex; gap: 10px; justify-content: center; margin: 15px 0; }
-  .star-btn { border: none; background: none; font-size: 35px; cursor: pointer; filter: grayscale(1); transition: 0.2s; }
-  .star-btn.active { filter: grayscale(0); transform: scale(1.1); }
-  textarea { width: 100%; height: 120px; border: 1px solid var(--border); border-radius: 12px; padding: 12px; font-family: inherit; resize: none; outline: none; }
-  .suggestion-chip { background: #F8F9FA; border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 10px; cursor: pointer; font-size: 14px; text-align: left; width: 100%; display: block; }
-  .suggestion-chip:hover { border-color: var(--primary); background: #E8F0FE; }
-  .submit-bar { position: fixed; bottom: 0; width: 100%; background: white; padding: 15px; border-top: 1px solid var(--border); box-sizing: border-box; }
-  .btn-primary { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 16px; font-weight: 600; cursor: pointer; }
-  #success-overlay { display: none; position: fixed; inset: 0; background: white; z-index: 100; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+  
+  /* Tabs Styling */
+  .lang-tabs { display: flex; gap: 10px; margin-bottom: 20px; background: #e0e4e9; padding: 5px; border-radius: 12px; }
+  .tab-btn { flex: 1; padding: 10px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; background: none; transition: 0.3s; }
+  .tab-btn.active { background: white; color: var(--primary); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+
+  .instruction { background: #E8F0FE; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; color: #1967D2; border: 1px dashed var(--primary); }
+  
+  .review-card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; transition: 0.2s; position: relative; }
+  .review-card:active { transform: scale(0.98); background: #f9f9f9; }
+  .copy-tag { position: absolute; right: 10px; top: 10px; font-size: 10px; background: #34A853; color: white; padding: 2px 6px; border-radius: 4px; display: none; }
+  
+  #toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); background: #323232; color: white; padding: 12px 24px; border-radius: 30px; font-size: 14px; display: none; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="biz-info"><b id="biz-name">Loading...</b><br><small>Publicly posting on Google</small></div>
-  <div style="color: #1A73E8; font-weight: bold;">Google Maps</div>
+  <b id="biz-name" style="font-size: 1.2rem;">Business Name</b><br>
+  <small style="color: var(--muted);">Ek review chunein aur Google par paste karein</small>
 </div>
 
 <div class="container">
-  <div class="card">
-    <p style="text-align:center; font-weight:600;">Aapki Rating?</p>
-    <div class="star-row">
-      <button class="star-btn" onclick="setRating(1)">⭐</button>
-      <button class="star-btn" onclick="setRating(2)">⭐</button>
-      <button class="star-btn" onclick="setRating(3)">⭐</button>
-      <button class="star-btn" onclick="setRating(4)">⭐</button>
-      <button class="star-btn" onclick="setRating(5)">⭐</button>
+  <div class="instruction">
+    💡 <b>Step:</b> Pasandeeda review par click karein, wo apne aap copy ho jayega aur Google Maps khul jayega.
+  </div>
+
+  <div class="lang-tabs">
+    <button class="tab-btn active" onclick="switchLang('en', this)">English</button>
+    <button class="tab-btn" onclick="switchLang('hi', this)">Hindi</button>
+    <button class="tab-btn" onclick="switchLang('mr', this)">Marathi</button>
+  </div>
+
+  <div id="reviews-container">
     </div>
-  </div>
-
-  <div class="card">
-    <p style="font-weight:600; margin-bottom:10px;">Review Likhein</p>
-    <textarea id="review-text" placeholder="Apna anubhav batayein..."></textarea>
-  </div>
-
-  <div class="card">
-    <p style="font-weight:600; margin-bottom:10px;">✨ AI Suggestions</p>
-    <div id="ai-chips">
-      <p style="font-size:12px; color:var(--muted);">Rating choose karein suggestions ke liye...</p>
-    </div>
-  </div>
 </div>
 
-<div class="submit-bar">
-  <button class="btn-primary" onclick="showSuccess()">Google par Post Karein</button>
-</div>
-
-<div id="success-overlay">
-  <div style="font-size: 50px;">✅</div>
-  <h2>Shukriya!</h2>
-  <p>Review copy ho gaya hai. Ab Google Maps par paste kar dein.</p>
-  <button class="btn-primary" id="google-link-btn">Google Maps Kholein</button>
-</div>
+<div id="toast">✅ Review Copy Ho Gaya! Maps khul raha hai...</div>
 
 <script>
-let currentRating = 0;
-let reviewUrl = '';
+// YAHAN AAP REVIEWS EDIT KAR SAKTE HAIN YA NAYE ADD KAR SAKTE HAIN
+const reviewData = {
+  en: [
+    "Excellent service and very professional staff. Highly recommended!",
+    "Great experience! The quality of products is top-notch.",
+    "Best place in town for all your needs. Very satisfied.",
+    "Fast service and very friendly behavior. 5 stars!",
+    "I've been a regular customer and they never disappoint.",
+    "Superb collection and reasonable prices. Must visit!",
+    "The ambiance is great and the service is even better.",
+    "Truly a wonderful experience, will definitely come back.",
+    "Impressive work and attention to detail. Thank you!",
+    "Reliable and honest business. Highly appreciate their work."
+  ],
+  hi: [
+    "Yahan ki service bahut hi badhiya hai. Staff ka vyavahar accha hai.",
+    "Mantra Shoppe par har cheez ki quality best milti hai.",
+    "Mera anubhav bahut accha raha, main sabko yahan aane ki salah dunga.",
+    "Kaam bahut fast aur safai se kiya jata hai. Very good!",
+    "Pichle 2 saal se main yahan aa raha hoon, hamesha best service milti hai.",
+    "Collection bahut accha hai aur daam bhi sahi hain.",
+    "Yahan ki sabse acchi baat inka professional tarika hai.",
+    "Bahut hi sundar anubhav, dhanyawad Mantra Shoppe!",
+    "Har kaam mein perfection dikhta hai. Zaroor aayein.",
+    "Sahi daam aur bhetar quality ke liye sabse acchi jagah."
+  ],
+  mr: [
+    "इथली सेवा खूप छान आहे. कर्मचारी अतिशय नम्र आहेत.",
+    "उत्कृष्ट दर्जा आणि वाजवी दर. नक्की भेट द्या!",
+    "माझा अनुभव खूपच चांगला होता. सेवा वेळेवर मिळते.",
+    "सर्वोत्तम क्वालिटी आणि तत्पर सेवा. धन्यवाद!",
+    "शहरातील एक उत्तम दुकान, सर्वांना शिफारस करेन.",
+    "कलेक्शन खूपच सुंदर आहे, नक्कीच पुन्हा येईन.",
+    "कामात खूप सफाई आणि प्रामाणिकपणा आहे.",
+    "मॅन्त्रा शॉपी मधील अनुभव खूपच समाधानकारक होता.",
+    "विश्वासार्ह सेवा आणि दर्जेदार उत्पादने.",
+    "खूप छान वाटले, इथली प्रत्येक गोष्ट उत्तम आहे."
+  ]
+};
+
+let currentLang = 'en';
+let googleUrl = '';
 
 window.onload = () => {
   const params = new URLSearchParams(window.location.search);
-  document.getElementById('biz-name').textContent = decodeURIComponent(params.get('biz') || 'Business');
-  reviewUrl = decodeURIComponent(params.get('url') || '');
+  document.getElementById('biz-name').textContent = decodeURIComponent(params.get('biz') || 'Mantra Shoppe');
+  googleUrl = decodeURIComponent(params.get('url') || '');
+  loadReviews('en');
 };
 
-function setRating(r) {
-  currentRating = r;
-  const stars = document.querySelectorAll('.star-btn');
-  stars.forEach((s, i) => s.classList.toggle('active', i < r));
-  loadSuggestions(r);
+function switchLang(lang, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadReviews(lang);
 }
 
-function loadSuggestions(r) {
-  const biz = document.getElementById('biz-name').textContent;
-  const chips = document.getElementById('ai-chips');
-  chips.innerHTML = 'Loading suggestions...';
-  
-  // Static Fallback Suggestions (Faster)
-  const suggestions = r >= 4 ? [
-    `Experience bahut accha raha! ${biz} ka staff professional hai.`,
-    `${biz} is definitely recommended! Best service and environment.`,
-    `Great place! Everything was perfect. Highly satisfied.`
-  ] : [
-    `${biz} theek hai but service improve karne ki zaroorat hai.`,
-    `Average experience. Could be better.`,
-    `Not satisfied with the service at ${biz}.`
-  ];
-
-  chips.innerHTML = '';
-  suggestions.forEach(text => {
-    const btn = document.createElement('button');
-    btn.className = 'suggestion-chip';
-    btn.textContent = text;
-    btn.onclick = () => { document.getElementById('review-text').value = text; };
-    chips.appendChild(btn);
+function loadReviews(lang) {
+  const container = document.getElementById('reviews-container');
+  container.innerHTML = '';
+  reviewData[lang].forEach(text => {
+    const card = document.createElement('div');
+    card.className = 'review-card';
+    card.innerHTML = `<span class="copy-tag">COPIED</span>${text}`;
+    card.onclick = () => copyAndRedirect(text);
+    container.appendChild(card);
   });
 }
 
-function showSuccess() {
-  const text = document.getElementById('review-text').value;
-  navigator.clipboard.writeText(text);
-  document.getElementById('success-overlay').style.display = 'flex';
-  document.getElementById('google-link-btn').onclick = () => window.open(reviewUrl, '_blank');
+function copyAndRedirect(text) {
+  navigator.clipboard.writeText(text).then(() => {
+    const toast = document.getElementById('toast');
+    toast.style.display = 'block';
+    setTimeout(() => {
+      window.location.href = googleUrl;
+    }, 1500);
+  });
 }
 </script>
 </body>
